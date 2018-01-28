@@ -35,7 +35,7 @@ Directory is the only argument optionnal, if not provided, the script will creat
 # Example
 
 ```
- node index.js leveldb-crypto sepiropht mypassword
+ node index.js  sepiropht mypassword leveldb-crypto
 
 ```
 # Issues
