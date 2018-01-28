@@ -10,7 +10,7 @@ const fromArray = require("from2-array");
 const user = process.argv[2];
 const pass = process.argv[3];
 const course = process.argv[4];
-const courseid = process.argv[5]
+const courseid = process.argv[5];
 const hd = process.argv[6];
 const pathDirectory = process.argv[7] || "DownLoads/";
 const url = "https://frontendmasters.com";
@@ -50,6 +50,7 @@ mkdirp(directory, function(err) {
     selector,
     course
   };
+
   let link = await page.evaluate(obj => {
     const anchors = Array.from(document.querySelectorAll(obj.selector));
     return anchors
@@ -71,32 +72,21 @@ mkdirp(directory, function(err) {
   }, selector);
   let finalLinks = [];
 
-  const newLink = links.map((item, index) => {
+  const newLinks = links.map((link, index) => {
     return {
-      index: index,
-      link: item
-    }
-  })
-
+      index,
+      link
+    };
+  });
 
   if (courseid) {
-    const serchLink = `${url}/courses/${course}/${courseid}/`
+    const serchLink = `${url}/courses/${course}/${courseid}/`;
 
-    const useLink = newLink.filter(item => item.link === serchLink)[0]
-    const index = useLink.index
-    const link = useLink.link
+    const useLink = newLink.filter(item => item.link === serchLink)[0];
+    const index = useLink.index;
+    const link = useLink.link;
     await page.goto(link);
     selector = "video";
-
-    if (hd) {
-      console.log("JE SUIS DANS HD");
-      await page.waitForSelector(".fm-vjs-quality li");
-      console.log("PAS VISIBLE4 ????");
-      await page.waitFor(8 * SECONDES);
-      await page.click(".fm-vjs-quality");
-      await page.click(".fm-vjs-quality li");
-    }
-    console.log("JE SUIS SORTIS DE HD");
 
     await page.waitFor(8 * SECONDES);
     const videoLink = await page.evaluate(selector => {
@@ -104,70 +94,76 @@ mkdirp(directory, function(err) {
       return video.src;
     }, selector);
 
-    const fileName = `${index+1}-` + link.split("/").filter(str => str.length).pop() + ".mp4";
+    const fileName =
+      `${index + 1}-` +
+      link
+        .split("/")
+        .filter(str => str.length)
+        .pop() +
+      ".mp4";
     try {
-      downloadVideo({ fileName, videoLink })
+      downloadVideo({ fileName, videoLink });
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   } else {
-    for (const templink of newLink) {
-      const index = templink.index
-      const link = templink.link
+    console.log("Will start downloading videos");
+
+    finalLinks = await getLinks(newLinks);
+
+    downloadVideos(finalLinks);
+  }
+
+  async function getLinks(newLinks) {
+    for (const templink of newLinks) {
+      console.log("in the loop", templink);
+      const { index, link } = templink;
       await page.goto(link);
-      selector = "video";
-      if (hd) {
-        console.log("I AM IN HD");
-        await page.waitForSelector(".fm-vjs-quality li");
-        console.log("NOT VISIBLE ????");
-        await page.waitFor(8 * SECONDES);
-        await page.click(".fm-vjs-quality");
-        await page.click(".fm-vjs-quality li");
-      }
-      console.log("I AM OUT OF HD");
+      const selector = "video";
+
       await page.waitFor(8 * SECONDES);
       const videoLink = await page.evaluate(selector => {
         const video = Array.from(document.querySelectorAll(selector)).pop();
         return video.src;
       }, selector);
+      console.log("video link fetched", videoLink);
 
-      const fileName = `${index+1}-` + link.split("/").filter(str => str.length).pop() + ".mp4";
+      const fileName =
+        `${index + 1}-` +
+        link
+          .split("/")
+          .filter(str => str.length)
+          .pop() +
+        ".mp4";
       finalLinks.push({ fileName, videoLink });
-      // try {
-      //   downloadVideo({ fileName, videoLink })
-      // } catch (err) {
-      //   console.log(err)
-      // }
     }
-    console.log("Will start downloading videos");
-
-    finalLinks = removeAlreadyFetched(finalLinks);
-    downloadVideos(finalLinks);
+    return finalLinks;
   }
-
   function downloadVideos(arrLinks) {
     fromArray
       .obj(arrLinks)
       .pipe(
-        throughParallel.obj({ concurrency: 3 }, ({ fileName, videoLink }, enc, next) => {
+        throughParallel.obj(
+          { concurrency: 3 },
+          ({ fileName, videoLink }, enc, next) => {
             console.log("Downloading:" + fileName);
-              https.get(videoLink, req =>
-                req.pipe(
-                  fs
-                    .createWriteStream(directory + "/" + fileName)
-                    .on("finish", () => {
-                      console.log(fileName + " downloaded");
-                      next();
-                    })
-                )
-              );
+            https.get(videoLink, req =>
+              req.pipe(
+                fs
+                  .createWriteStream(directory + "/" + fileName)
+                  .on("finish", () => {
+                    console.log(fileName + " downloaded");
+                    next();
+                  })
+              )
+            );
           }
         )
       )
       .on("finish", () => console.log("All video downloaded"));
   }
 
-  function downloadVideo ({fileName, videoLink}) {
+  function downloadVideo({ fileName, videoLink }) {
     if (videoLink) {
       https.get(videoLink, req =>
         req.pipe(
@@ -175,7 +171,7 @@ mkdirp(directory, function(err) {
             console.log(fileName + " downloaded");
           })
         )
-      )
+      );
     }
   }
 
@@ -183,13 +179,10 @@ mkdirp(directory, function(err) {
     console.log(err);
     console.log("You have reached maximum request limit");
     console.log("Sleeping for 15 minutes");
-    finalLinks = removeAlreadyFetched(finalLinks);
-    setTimeout(() => downloadVideos(finalLinks), SECONDES * 60 * 15);
+    setTimeout(async () => {
+      newLinks.splice(0, finalLinks.length);
+      finalLinks = await getLinks(newLinks);
+      downloadVideos(finalLinks);
+    }, SECONDES * 60 * 15);
   });
-  function removeAlreadyFetched(arrLinks) {
-    const alreadyFetched = fs.readdirSync(directory).map(file => file);
-    return arrLinks.filter(
-      ({ fileName }) => !alreadyFetched.includes(fileName)
-    );
-  }
 })();
