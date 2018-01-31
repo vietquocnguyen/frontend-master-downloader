@@ -107,9 +107,9 @@ mkdirp(directory, function(err) {
       console.log(err);
     }
   } else {
-    console.log("Will start downloading videos");
-
     finalLinks = await getLinks(newLinks);
+
+    console.log("Will start downloading videos");
 
     downloadVideos(finalLinks);
   }
@@ -122,11 +122,31 @@ mkdirp(directory, function(err) {
       const selector = "video";
 
       await page.waitFor(8 * SECONDES);
-      const videoLink = await page.evaluate(selector => {
-        const video = Array.from(document.querySelectorAll(selector)).pop();
-        return video.src;
-      }, selector);
+      let videoLink = await page
+        .evaluate(selector => {
+          const video = Array.from(document.querySelectorAll(selector)).pop();
+          return video.src;
+        }, selector)
+        .catch(err => {
+          console.log(err);
+          console.log("You have reached maximum request limit");
+          console.log("Sleeping for 15 minutes");
+          return "retry";
+        });
       console.log("video link fetched", videoLink);
+      if (videoLink === "retry") {
+        await timeout(60 * SECONDES * 15);
+        console.log("end waiting scraping continiues !!!!", templink);
+        const { index, link } = templink;
+        await page.goto(link);
+        const selector = "video";
+
+        await page.waitFor(8 * SECONDES);
+        videoLink = await page.evaluate(selector => {
+          const video = Array.from(document.querySelectorAll(selector)).pop();
+          return video.src;
+        }, selector);
+      }
 
       const fileName =
         `${index + 1}-` +
@@ -174,15 +194,7 @@ mkdirp(directory, function(err) {
       );
     }
   }
-
-  process.on("uncaughtException", err => {
-    console.log(err);
-    console.log("You have reached maximum request limit");
-    console.log("Sleeping for 15 minutes");
-    setTimeout(async () => {
-      newLinks.splice(0, finalLinks.length);
-      finalLinks = await getLinks(newLinks);
-      downloadVideos(finalLinks);
-    }, SECONDES * 60 * 15);
-  });
+  function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 })();
