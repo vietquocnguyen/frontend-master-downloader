@@ -1,5 +1,5 @@
 # Frontend-Master-Downloader
-Scrape frontendmaster with puppeteer (Not fully working for now, just try it for fun)
+Scrape frontendmaster with puppeteer
 
 ### Usage
 
@@ -38,6 +38,3 @@ Directory is the only argument optionnal, if not provided, the script will creat
  node index.js  sepiropht mypassword leveldb-crypto
 
 ```
-# Issues
-
-I never succeded to fetch all the video from a course. I'm very close but no cigar. But puppeter(a wrapper for chrome headless) crash, if you have suggestion to fix please share !
