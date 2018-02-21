@@ -1,5 +1,5 @@
 # Frontend-Master-Downloader
-Scrape frontendmaster with puppeteer
+Download content from frontendmaster with puppeteer
 
 ### Usage
 
@@ -23,18 +23,18 @@ cp chromedriver /usr/local/bin/chromedriver
 Checkout the repo then install it
 
 ```
-npm install
+npm install frontend-master-downloader -g
 ```
 Use the command by doing
 
 ```
-   node index.js <USERNAME> <PASSWORD> <COURSE_NAME> <COURSE_ID(optional)> <HD(optional)> <DIRECTORY(optional)>
+   node index.js <USERNAME> <PASSWORD> <COURSE_NAME> <COURSE_ID(optional)> <DIRECTORY(optional)>
 ```
 Directory is the only argument optionnal, if not provided, the script will create a Download direcory in the current location.
 
 # Example
 
 ```
- node index.js  sepiropht mypassword leveldb-crypto
+ frontend-master-downloader sepiropht mypassword leveldb-crypto
 
 ```

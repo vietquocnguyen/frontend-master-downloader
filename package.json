@@ -1,12 +1,27 @@
 {
+  "name": "frontend-master-downloader",
+  "version": "1.0.4",
+  "description": "Download video from frontenMaster",
+  "main": "index.js",
+  "bin": {
+    "frontend-master-downloader": "index.js"
+  },
   "dependencies": {
-    "commander": "^2.13.0",
     "end-of-stream": "^1.4.1",
     "from2-array": "0.0.4",
     "mkdirp": "^0.5.1",
     "puppeteer": "^0.13.0",
     "stream-set": "^1.1.0",
-    "through2": "^2.0.3",
     "through2-parallel": "^0.1.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sepiropht/Frontend-Master-Downloader.git"
+  },
+  "author": "William Mbotta (@sepiropht)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sepiropht/Frontend-Master-Downloader/issues"
+  },
+  "homepage": "https://github.com/sepiropht/Frontend-Master-Downloader"
 }
