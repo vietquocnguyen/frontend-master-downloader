@@ -15,6 +15,9 @@ const hd = process.argv[6];
 const pathDirectory = process.argv[7] || "DownLoads/";
 const url = "https://frontendmasters.com";
 const SECONDES = 1000;
+const onend = require("end-of-stream");
+const streamSet = require("stream-set");
+const streams = new streamSet();
 
 if (!course || !user || !pass) {
   process.stderr.write("you must provide course, username and your password");
@@ -101,6 +104,7 @@ mkdirp(directory, function(err) {
         .filter(str => str.length)
         .pop() +
       ".mp4";
+
     try {
       downloadVideo({ fileName, videoLink });
     } catch (err) {
@@ -122,21 +126,22 @@ mkdirp(directory, function(err) {
       const selector = "video";
 
       await page.waitFor(8 * SECONDES);
-      let videoLink = await page
-        .evaluate(selector => {
+      let videoLink;
+      try {
+        videoLink = await page.evaluate(selector => {
           const video = Array.from(document.querySelectorAll(selector)).pop();
           return video.src;
-        }, selector)
-        .catch(err => {
-          console.log(err);
-          console.log("You have reached maximum request limit");
-          console.log("Sleeping for 15 minutes");
-          return "retry";
-        });
+        }, selector);
+      } catch (err) {
+        console.log(err);
+        console.log("You have reached maximum request limit");
+        console.log("Sleeping for 15 minutes");
+        videoLink = "retry";
+      }
       console.log("video link fetched", videoLink);
-      if (videoLink === "retry") {
+      if (videoLink === "retry" || !videoLink.length) {
         await timeout(60 * SECONDES * 15);
-        console.log("end waiting scraping continiues !!!!", templink);
+        console.log("end waiting, scraping continiues !!!!", templink);
         const { index, link } = templink;
         await page.goto(link);
         const selector = "video";
@@ -159,28 +164,33 @@ mkdirp(directory, function(err) {
     }
     return finalLinks;
   }
+
   function downloadVideos(arrLinks) {
-    fromArray
-      .obj(arrLinks)
-      .pipe(
-        throughParallel.obj(
-          { concurrency: 3 },
-          ({ fileName, videoLink }, enc, next) => {
-            console.log("Downloading:" + fileName);
-            https.get(videoLink, req =>
-              req.pipe(
-                fs
-                  .createWriteStream(directory + "/" + fileName)
-                  .on("finish", () => {
-                    console.log(fileName + " downloaded");
-                    next();
-                  })
-              )
+    fromArray.obj(arrLinks).pipe(
+      throughParallel.obj(
+        { concurrency: 3 },
+        ({ fileName, videoLink }, enc, next) => {
+          console.log("Downloading:" + fileName);
+          https.get(videoLink, req => {
+            const writeVideoFileStream = fs.createWriteStream(
+              directory + "/" + fileName
             );
-          }
-        )
+            streams.add(writeVideoFileStream);
+
+            onend(writeVideoFileStream, err => {
+              if (err) console.log(err);
+              console.log(fileName + " downloaded");
+              if (!streams.size) {
+                console.log("All videos downloaded");
+                process.exit();
+              }
+            });
+
+            req.pipe(writeVideoFileStream.on("finish", () => next()));
+          });
+        }
       )
-      .on("finish", () => console.log("All video downloaded"));
+    );
   }
 
   function downloadVideo({ fileName, videoLink }) {
@@ -194,6 +204,7 @@ mkdirp(directory, function(err) {
       );
     }
   }
+
   function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

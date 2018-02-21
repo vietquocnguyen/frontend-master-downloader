@@ -1,9 +1,11 @@
 {
   "dependencies": {
     "commander": "^2.13.0",
+    "end-of-stream": "^1.4.1",
     "from2-array": "0.0.4",
     "mkdirp": "^0.5.1",
     "puppeteer": "^0.13.0",
+    "stream-set": "^1.1.0",
     "through2": "^2.0.3",
     "through2-parallel": "^0.1.3"
   }
