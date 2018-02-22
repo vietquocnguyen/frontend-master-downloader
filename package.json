@@ -18,6 +18,15 @@
     "type": "git",
     "url": "https://github.com/sepiropht/Frontend-Master-Downloader.git"
   },
+  "keywords": [
+    "frontend",
+    "master",
+    "video",
+    "training",
+    "download",
+    "scraping",
+    "puppeteer"
+  ],
   "author": "William Mbotta (@sepiropht)",
   "license": "MIT",
   "bugs": {
