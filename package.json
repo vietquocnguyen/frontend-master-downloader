@@ -7,6 +7,7 @@
     "frontend-master-downloader": "index.js"
   },
   "dependencies": {
+    "args": "^3.0.8",
     "end-of-stream": "^1.4.1",
     "from2-array": "0.0.4",
     "mkdirp": "^0.5.1",

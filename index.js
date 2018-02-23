@@ -7,22 +7,30 @@ const throughParallel = require("through2-parallel");
 const puppeteer = require("puppeteer");
 const fromArray = require("from2-array");
 
-const user = process.argv[2];
-const pass = process.argv[3];
-const course = process.argv[4];
-const courseid = process.argv[5];
-const hd = process.argv[6];
-const pathDirectory = process.argv[7] || "DownLoads/";
+const args = require("args");
+
+args
+  .option("user", "user")
+  .option("pass", "password")
+  .option("courses", 'names of course ex: "git-in-depth"')
+  .option("id", "only one video")
+  .option("directory", "directory of destination");
+
+const flags = args.parse(process.argv);
+console.log(flags);
+let { user, pass, courses, id, directory } = flags;
+directory = directory || "Downloads/";
+
 const url = "https://frontendmasters.com";
 const SECONDES = 1000;
 
-if (!course || !user || !pass) {
+if (!courses || !user || !pass) {
   process.stderr.write("you must provide course, username and your password");
   return;
 }
 
-const directory = pathDirectory + course;
-
+directory = directory + courses;
+console.log(directory);
 mkdirp(directory, function(err) {
   if (err) console.error(err);
 });
@@ -48,7 +56,7 @@ mkdirp(directory, function(err) {
   await page.waitForSelector(selector);
   const obj = {
     selector,
-    course
+    courses
   };
 
   let link = await page.evaluate(obj => {
@@ -57,10 +65,9 @@ mkdirp(directory, function(err) {
       .map(anchor => {
         return `${anchor.href}`;
       })
-      .filter(text => text.includes(obj.course))
+      .filter(text => text.includes(obj.courses))
       .pop();
   }, obj);
-
   await page.goto(link);
   selector = ".LessonListItem a";
   await page.waitForSelector(selector);
@@ -71,7 +78,6 @@ mkdirp(directory, function(err) {
     });
   }, selector);
   let finalLinks = [];
-
   const newLinks = links.map((link, index) => {
     return {
       index,
@@ -79,8 +85,8 @@ mkdirp(directory, function(err) {
     };
   });
 
-  if (courseid) {
-    const serchLink = `${url}/courses/${course}/${courseid}/`;
+  if (id) {
+    const serchLink = `${url}/courses/${courses}/${id}/`;
 
     const useLink = newLink.filter(item => item.link === serchLink)[0];
     const index = useLink.index;
