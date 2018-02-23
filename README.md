@@ -28,13 +28,13 @@ npm install frontend-master-downloader -g
 Use the command by doing
 
 ```
-   fronttend-master-downloader -u <USERNAME> -p <PASSWORD> -c <COURSE_NAME> -i <COURSE_ID(optional)> -d <DIRECTORY(optional)>
+frontend-master-downloader -u <USERNAME> -p <PASSWORD> -c <COURSE_NAME> -i <COURSE_ID(optional)> -d <DIRECTORY(optional)>
 ```
-Directory is the only argument optionnal, if not provided, the script will create a Download direcory in the current location.
+Directory is optional, if not provided, the script will create a Download directory in the current location.
 
 # Example
 
 ```
- frontend-master-downloader -u sepiropht -p mypassword -c leveldb-crypto
+frontend-master-downloader -u sepiropht -p mypassword -c leveldb-crypto
 
 ```

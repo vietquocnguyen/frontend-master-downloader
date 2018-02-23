@@ -17,9 +17,8 @@ args
   .option("directory", "directory of destination");
 
 const flags = args.parse(process.argv);
-console.log(flags);
 let { user, pass, courses, id, directory } = flags;
-directory = directory || "Downloads/";
+directory = directory || "DownLoads/";
 
 const url = "https://frontendmasters.com";
 const SECONDES = 1000;
@@ -30,7 +29,7 @@ if (!courses || !user || !pass) {
 }
 
 directory = directory + courses;
-console.log(directory);
+
 mkdirp(directory, function(err) {
   if (err) console.error(err);
 });
