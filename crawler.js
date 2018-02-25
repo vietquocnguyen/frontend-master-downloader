@@ -111,7 +111,7 @@ module.exports = async ({ user, pass, courses, id }) => {
         });
       console.log("video link fetched", videoLink);
 
-      if (videoLink === "retry" && !videoLink.length) {
+      if (videoLink === "retry" || !videoLink.length) {
         console.log("You have reached maximum request limit");
         console.log("Sleeping for 15 minutes");
         await timeout(60 * SECONDES * 15);
