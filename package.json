@@ -1,6 +1,6 @@
 {
   "name": "frontend-master-downloader",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Download video from frontenMaster",
   "main": "index.js",
   "bin": {
