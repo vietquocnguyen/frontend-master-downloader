@@ -109,7 +109,7 @@ mkdirp(directory, function(err) {
     try {
       downloadVideo({ fileName, videoLink });
     } catch (err) {
-      console.log(err);
+      console.log("ERROR", err);
     }
   } else {
     finalLinks = await getLinks(newLinks);
@@ -123,7 +123,11 @@ mkdirp(directory, function(err) {
     for (const templink of newLinks) {
       console.log("in the loop", templink);
       const { index, link } = templink;
-      await page.goto(link);
+      try {
+        await page.goto(link);
+      } catch (err) {
+        console.log("erreur, err");
+      }
       const selector = "video";
 
       await page.waitFor(8 * SECONDES);
@@ -134,12 +138,12 @@ mkdirp(directory, function(err) {
         }, selector)
         .catch(err => {
           console.log(err);
-          console.log("You have reached maximum request limit");
-          console.log("Sleeping for 15 minutes");
           return "retry";
         });
       console.log("video link fetched", videoLink);
-      if (videoLink === "retry") {
+      if (videoLink === "retry" && !videoLink.length) {
+        console.log("You have reached maximum request limit");
+        console.log("Sleeping for 15 minutes");
         await timeout(60 * SECONDES * 15);
         console.log("end waiting scraping continiues !!!!", templink);
         const { index, link } = templink;
