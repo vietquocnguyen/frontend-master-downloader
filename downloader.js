@@ -2,7 +2,6 @@ const throughParallel = require("through2-parallel");
 const fromArray = require("from2-array");
 const fs = require("fs");
 const https = require("https");
-const request = require("request");
 let links = [];
 let destination = "";
 
