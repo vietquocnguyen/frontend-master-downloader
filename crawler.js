@@ -95,7 +95,7 @@ module.exports = async ({ user, pass, courses, id }) => {
       try {
         await page.goto(link);
       } catch (err) {
-        console.log("erreur, err");
+        //console.log("erreur, err");
       }
       const selector = "video";
 
@@ -106,7 +106,7 @@ module.exports = async ({ user, pass, courses, id }) => {
           return video.src;
         }, selector)
         .catch(err => {
-          console.log(err);
+          //console.log(err);
           return "retry";
         });
       console.log("video link fetched", videoLink);
