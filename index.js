@@ -2,7 +2,7 @@
 
 const mkdirp = require("mkdirp");
 const args = require("args");
-
+const chalk = require("chalk");
 const crawler = require("./crawler");
 const downloader = require("./downloader");
 
@@ -19,7 +19,7 @@ let { user, pass, courses, directory } = flags;
 directory = directory || "DownLoads/";
 
 if (!courses || !user || !pass) {
-  process.stderr.write("you must provide course, username and your password");
+  console.log(chalk.red("You must provide username, password and course \n"));
   return;
 }
 

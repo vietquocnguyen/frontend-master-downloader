@@ -1,9 +1,13 @@
 const puppeteer = require("puppeteer");
-
+const chalk = require("chalk");
+const { msToMin } = require("./utils");
 const url = "https://frontendmasters.com";
 const SECONDES = 1000;
+let stopInterval;
 
 module.exports = async ({ user, pass, courses, id }) => {
+  console.log(chalk.green("You are using frontendmaster-downloader \n"));
+  console.log(chalk.green("Try the login ... \n"));
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setUserAgent(
@@ -20,6 +24,8 @@ module.exports = async ({ user, pass, courses, id }) => {
   await password.type(pass);
   const button = await page.$("button");
   await button.click();
+  console.log(chalk.green(user + " logged \n"));
+  console.log(chalk.green("First scrape all the links... \n"));
   let selector = ".title a";
   await page.waitForSelector(selector);
   const obj = {
@@ -90,7 +96,7 @@ module.exports = async ({ user, pass, courses, id }) => {
 
   async function getLinks(newLinks) {
     for (const templink of newLinks) {
-      console.log("in the loop", templink);
+      console.log(chalk.yellow("scraping", templink.link + "\n"));
       const { index, link } = templink;
       try {
         await page.goto(link);
@@ -109,13 +115,14 @@ module.exports = async ({ user, pass, courses, id }) => {
           //console.log(err);
           return "retry";
         });
-      console.log("video link fetched", videoLink);
+      //console.log("video link fetched", videoLink);
 
       if (videoLink === "retry" || !videoLink.length) {
-        console.log("You have reached maximum request limit");
-        console.log("Sleeping for 15 minutes");
+        console.log(chalk.red("You have reached maximum request limit \n"));
+        console.log(chalk.blue("Sleeping for 15 minutes \n"));
         await timeout(60 * SECONDES * 15);
-        console.log("end waiting scraping continiues !!!!", templink);
+        clearInterval(stopInterval);
+        console.log(chalk.green("End waiting scraping continues !!!! \n"));
         const { index, link } = templink;
         await page.goto(link);
         const selector = "video";
@@ -139,7 +146,18 @@ module.exports = async ({ user, pass, courses, id }) => {
     return finalLinks;
   }
 };
-
+let remainTime;
 function timeout(ms) {
+  remainTime = ms;
+  interval(ms, 1000);
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function interval(totalTime, intervalTime) {
+  stopInterval = setInterval(loggeRemainingTime, intervalTime);
+  function loggeRemainingTime() {
+    remainTime = remainTime - intervalTime;
+    time = msToMin(remainTime);
+    console.log(chalk.blue(time + "min remaining \n"));
+  }
 }
