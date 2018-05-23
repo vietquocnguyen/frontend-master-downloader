@@ -60,9 +60,9 @@ module.exports = async ({ user, pass, courses, id }) => {
   });
 
   if (id) {
-    const serchLink = `${url}/courses/${courses}/${id}/`;
+    const searchLink = `${url}/courses/${courses}/${id}/`;
 
-    const useLink = newLink.filter(item => item.link === serchLink)[0];
+    const useLink = newLinks.filter(item => item.link === searchLink)[0];
     const index = useLink.index;
     const link = useLink.link;
     await page.goto(link);
@@ -157,7 +157,7 @@ function interval(totalTime, intervalTime) {
   stopInterval = setInterval(loggeRemainingTime, intervalTime);
   function loggeRemainingTime() {
     remainTime = remainTime - intervalTime;
-    time = msToMin(remainTime);
+    let time = msToMin(remainTime);
     console.log(chalk.blue(time + "min remaining \n"));
   }
 }
