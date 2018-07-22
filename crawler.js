@@ -33,6 +33,7 @@ module.exports = async ({ user, pass, courses, id }) => {
     courses
   };
 
+  await page.waitFor(3  * SECONDES);
   let link = await page.evaluate(obj => {
     const anchors = Array.from(document.querySelectorAll(obj.selector));
     return anchors
@@ -89,10 +90,7 @@ module.exports = async ({ user, pass, courses, id }) => {
       console.log("ERROR", err);
     }
   } else {
-    finalLinks = await getLinks(newLinks);
-
-    console.log("Will start downloading videos");
-
+    finalLinks = await getLinks(newLinks); 
     return finalLinks;
   }
 

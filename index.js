@@ -31,5 +31,6 @@ mkdirp(directory, function(err) {
 
 (async () => {
   let links = await crawler(flags);
+  console.log("Will start downloading videos");
   downloader(links, directory);
 })();
