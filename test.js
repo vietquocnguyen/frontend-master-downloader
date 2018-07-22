@@ -13,3 +13,4 @@ test('test scraper', function(t) {
 		t.end()
 	})
 })
+test.onFinish(() => process.exit(0))
