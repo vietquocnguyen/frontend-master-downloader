@@ -83,7 +83,7 @@ module.exports = async ({ user, pass, courses, id }) => {
         .split("/")
         .filter(str => str.length)
         .pop() +
-      ".mp4";
+      ".webm";
     try {
       return [{ fileName, videoLink }];
     } catch (err) {
@@ -140,7 +140,7 @@ module.exports = async ({ user, pass, courses, id }) => {
           .split("/")
           .filter(str => str.length)
           .pop() +
-        ".mp4";
+        ".webm";
       finalLinks.push({ fileName, videoLink });
     }
     return finalLinks;
